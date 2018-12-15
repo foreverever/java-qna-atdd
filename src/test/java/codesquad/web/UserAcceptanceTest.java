@@ -74,9 +74,10 @@ public class UserAcceptanceTest extends AcceptanceTest {
         log.debug("body : {}", response.getBody());
     }
 
+//    @Test
     private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
         HttpEntity<MultiValueMap<String, Object>> request = HtmlFormDataBuilder.urlEncodedForm()
-                .addParameter("_method", "put")
+                .put()
                 .addParameter("password", "test")
                 .addParameter("name", "자바지기2")
                 .addParameter("email", "javajigi@slipp.net")
