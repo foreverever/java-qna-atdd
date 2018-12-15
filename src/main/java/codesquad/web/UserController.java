@@ -14,15 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
-    @Resource(name = "userRepository")
-    private UserRepository userRepository;
 
     @Resource(name = "userService")
     private UserService userService;
