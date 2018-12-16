@@ -1,6 +1,7 @@
 package codesquad.web;
 
 import codesquad.UnAuthenticationException;
+import codesquad.UnAuthorizedException;
 import codesquad.domain.Question;
 import codesquad.domain.User;
 import codesquad.security.LoginUser;
@@ -35,7 +36,7 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     public String showQuestion(@PathVariable long id, Model model) {
-        model.addAttribute("question", qnaService.findById(id));
+        model.addAttribute("question", qnaService.findById(id).orElseThrow(UnAuthorizedException::new));
         return "/qna/show";
     }
 

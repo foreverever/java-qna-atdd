@@ -2,7 +2,6 @@ package codesquad.web;
 
 import codesquad.UnAuthenticationException;
 import codesquad.domain.User;
-import codesquad.domain.UserRepository;
 import codesquad.security.HttpSessionUtils;
 import codesquad.security.LoginUser;
 import codesquad.service.UserService;
@@ -49,14 +48,6 @@ public class UserController {
         return "/user/updateForm";
     }
 
-//    @GetMapping("/{id}/form")
-//    public String updateForm(HttpSession session, Model model) {   //401에러 뜸 (unauthorized)
-//        User user = (User) session.getAttribute("loginUser");
-//        model.addAttribute("user", user);
-//        return "/user/updateForm";
-//    }
-
-
     @PutMapping("/{id}")
     public String update(@LoginUser User loginUser, @PathVariable long id, User target) {
         userService.update(loginUser, id, target);
@@ -77,5 +68,11 @@ public class UserController {
         } catch (UnAuthenticationException e) {
             return "user/login_failed";
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.removeAttribute(HttpSessionUtils.USER_SESSION_KEY);
+        return "redirect:/";
     }
 }
