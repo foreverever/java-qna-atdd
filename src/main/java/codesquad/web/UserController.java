@@ -3,6 +3,7 @@ package codesquad.web;
 import codesquad.UnAuthenticationException;
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
+import codesquad.security.HttpSessionUtils;
 import codesquad.security.LoginUser;
 import codesquad.service.UserService;
 import org.slf4j.Logger;
@@ -43,10 +44,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}/form")
-    public String updateForm(@LoginUser User loginUser, @PathVariable long id, Model model) {
+    public String updateForm(@LoginUser User loginUser, @PathVariable long id, Model model) {   //401에러 뜸 (unauthorized)
         model.addAttribute("user", userService.findById(loginUser, id));
         return "/user/updateForm";
     }
+
+//    @GetMapping("/{id}/form")
+//    public String updateForm(HttpSession session, Model model) {   //401에러 뜸 (unauthorized)
+//        User user = (User) session.getAttribute("loginUser");
+//        model.addAttribute("user", user);
+//        return "/user/updateForm";
+//    }
+
 
     @PutMapping("/{id}")
     public String update(@LoginUser User loginUser, @PathVariable long id, User target) {
@@ -63,7 +72,7 @@ public class UserController {
     public String login(String userId, String password, HttpSession session) {
         try {
             User user = userService.login(userId, password);
-            session.setAttribute("loginUser", user);
+            session.setAttribute(HttpSessionUtils.USER_SESSION_KEY, user);
             return "redirect:/";
         } catch (UnAuthenticationException e) {
             return "user/login_failed";

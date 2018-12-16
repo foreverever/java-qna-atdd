@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.UnAuthenticationException;
+import codesquad.security.LoginUser;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -8,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
@@ -85,5 +88,30 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
+    }
+
+//    public void update(Question updatedQuestion, @LoginUser User loginUser) {
+//        this.title = updatedQuestion.title;
+//        this.contents = updatedQuestion.contents;
+//    }
+
+    public void update(Question updatedQuestion, User loginUser) throws UnAuthenticationException {
+        if(!this.writer.equals(loginUser)) throw new UnAuthenticationException();
+        this.title = updatedQuestion.title;
+        this.contents = updatedQuestion.contents;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Question question = (Question) o;
+        return Objects.equals(writer, question.writer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), writer);
     }
 }
