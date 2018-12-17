@@ -32,6 +32,7 @@ public class QnaService {
         return questionRepository.save(question);
     }
 
+    @Transactional(readOnly = true)
     public Optional<Question> findById(long id) {
         return questionRepository.findById(id);
     }
@@ -49,6 +50,14 @@ public class QnaService {
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
         // TODO 삭제 기능 구현
+        try {
+            Question originQuestion = findById(questionId)
+                    .filter(question -> question.isOwner(loginUser))
+                    .orElseThrow(UnAuthenticationException::new);
+            originQuestion.delete(loginUser);
+        } catch (UnAuthenticationException e) {
+            throw new CannotDeleteException("삭제 안됨");
+        }
     }
 
     public Iterable<Question> findAll() {

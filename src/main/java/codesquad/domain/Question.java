@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthenticationException;
 import codesquad.security.LoginUser;
 import org.hibernate.annotations.Where;
@@ -96,7 +97,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 //    }
 
     public void update(Question updatedQuestion, User loginUser) throws UnAuthenticationException {
-        if(!this.writer.equals(loginUser)) throw new UnAuthenticationException();
+        if (!this.writer.equals(loginUser)) throw new UnAuthenticationException();
         this.title = updatedQuestion.title;
         this.contents = updatedQuestion.contents;
     }
@@ -113,5 +114,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), writer);
+    }
+
+    public void delete(User loginUser) throws CannotDeleteException{
+        if(!this.isOwner(loginUser)) throw new CannotDeleteException("삭제 안됨");
+        this.deleted = true;
     }
 }
