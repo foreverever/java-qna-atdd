@@ -42,15 +42,16 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
                 .addParameter("title", "질문있어요")
                 .addParameter("contents", "질문이 뭔지 까먹었어요")
                 .build();
-//        ResponseEntity<String> response = template().postForEntity("/questions/%d", request,  String.class);    //질문하기 하면 내 질문화면 보여주기 어떻게 id값을 가져와야 하는 가?
         User loginUser = defaultUser();
         ResponseEntity<String> response = basicAuthTemplate(loginUser)
                 .postForEntity("/questions", request, String.class);     //request에 데이터를 담으면 postForEntity로 얘가 판단해주네
 
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         softly.assertThat(response.getHeaders().getLocation().getPath()).startsWith("/");
+//        softly.assertThat(questionRepository.findByWriter(loginUser)).isNotEmpty();
+        softly.assertThat(questionRepository.findByTitle("질문있어요")).isNotEmpty();
+        softly.assertThat(questionRepository.findByTitle("질문_있어요")).isEmpty();
 //        softly.assertThat(questionRepository.findByWriter(loginUser).isPresent()).isTrue(); //이 경우, IncorrectResultSizeDataAccessException 에러 뜸 optional은 유니크(1개) 결과값만 값을 받는다?
-        softly.assertThat(questionRepository.findByWriter(loginUser)).isNotEmpty();
     }
 
     @Test
@@ -79,11 +80,17 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    public void 질문_수정_작성() throws Exception {     //질문 수정
+    public void 질문수정_작성_로그인O() throws Exception {     //질문 수정
         User loginUser = defaultUser();
         ResponseEntity<String> response = update(basicAuthTemplate(loginUser));
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         softly.assertThat(response.getHeaders().getLocation().getPath().startsWith("/questions/%d", 1));
+    }
+
+    @Test
+    public void 질문수정_작성_로그인X() throws Exception {
+        ResponseEntity<String> response = update(template());
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
@@ -121,8 +128,7 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
         HttpEntity<MultiValueMap<String, Object>> request = HtmlFormDataBuilder.urlEncodedForm()
                 .delete()
                 .build();
-        ResponseEntity<String> response = basicAuthTemplate(otherUser)
-                .postForEntity(String.format("/questions/%d", 2), request, String.class);
+        ResponseEntity<String> response = basicAuthTemplate(otherUser).postForEntity(String.format("/questions/%d", 2), request, String.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
