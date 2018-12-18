@@ -116,8 +116,8 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return Objects.hash(super.hashCode(), writer);
     }
 
-    public void delete(User loginUser) throws CannotDeleteException{
-        if(!this.isOwner(loginUser)) throw new CannotDeleteException("삭제 안됨");
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!this.isOwner(loginUser)) throw new CannotDeleteException("삭제 안됨!!");
         this.deleted = true;
     }
 }

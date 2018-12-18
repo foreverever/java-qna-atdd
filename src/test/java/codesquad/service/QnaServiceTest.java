@@ -1,5 +1,7 @@
 package codesquad.service;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthenticationException;
 import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
@@ -22,8 +24,9 @@ public class QnaServiceTest extends BaseTest {
 
     @InjectMocks
     private QnaService qnaService;
+
     public static Question originalQuestion = new Question("title", "contents");
-    public static Question updatedQuestion = new Question("updatedTitle", "updatedContents");
+    public static Question modifiedQuestion = new Question("updatedTitle", "updatedContents");
 
     public static User owner = new User(1, "javajigi", "password", "name", "javajigi@slipp.net");
     public static User other = new User(2, "sanjigi", "password", "name", "sanjigi@slipp.net");
@@ -32,38 +35,35 @@ public class QnaServiceTest extends BaseTest {
     public void setUp() throws Exception {
         originalQuestion.setId(1);
         originalQuestion.writeBy(owner);
-    }
-
-    @Test
-    public void 질문수정_로그인X() throws Exception {
-//        Question question = new Question("title", "contents");
-//        when(questionRepository.findByWriter(question.getWriter())).thenReturn(Optional.of(question));
-//        when(userRepository.findByUserId(user.getUserId())).thenReturn(Optional.of(user));
-//        User loginUser = userService.login(user.getUserId(), user.getPassword());
-//        softly.assertThat(loginUser).isEqualTo(user);
+        modifiedQuestion.setId(2);
+        modifiedQuestion.writeBy(owner);
     }
 
     @Test
     public void 질문수정_로그인O() throws Exception {
-
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        Question forUpdate = questionRepository.findById(originalQuestion.getId()).get();
+        when(questionRepository.save(forUpdate)).thenReturn(forUpdate);
+        forUpdate.update(modifiedQuestion, owner);
+        Question updatedQuestion = qnaService.update(owner, originalQuestion.getId(), modifiedQuestion);
+        softly.assertThat(updatedQuestion.getTitle()).isEqualTo(modifiedQuestion.getTitle());
     }
 
-    @Test
+    @Test(expected = UnAuthenticationException.class)
     public void 질문수정_다른유저() throws Exception {
-
-    }
-
-    @Test
-    public void 질문삭제_로그인X() throws Exception {
-
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        qnaService.update(other, originalQuestion.getId(), modifiedQuestion);
     }
 
     @Test
     public void 질문삭제_로그인O() throws Exception {
-
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        qnaService.delete(owner, originalQuestion.getId());
     }
 
-    @Test
+    @Test(expected = CannotDeleteException.class)
     public void 질문삭제_다른유저() throws Exception {
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        qnaService.delete(other, originalQuestion.getId());
     }
 }
