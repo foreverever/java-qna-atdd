@@ -50,6 +50,12 @@ public class QnaServiceTest extends BaseTest {
     }
 
     @Test(expected = UnAuthenticationException.class)
+    public void 질문수정_로그인X() throws Exception {
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        qnaService.update(null, originalQuestion.getId(), modifiedQuestion);
+    }
+
+    @Test(expected = UnAuthenticationException.class)
     public void 질문수정_다른유저() throws Exception {
         when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
         qnaService.update(other, originalQuestion.getId(), modifiedQuestion);
@@ -59,6 +65,13 @@ public class QnaServiceTest extends BaseTest {
     public void 질문삭제_로그인O() throws Exception {
         when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
         qnaService.delete(owner, originalQuestion.getId());
+        softly.assertThat(originalQuestion.isDeleted()).isTrue();
+    }
+
+    @Test(expected = CannotDeleteException.class)
+    public void 질문삭제_로그인X() throws Exception {
+        when(questionRepository.findById(originalQuestion.getId())).thenReturn(Optional.of(originalQuestion));
+        qnaService.delete(null, originalQuestion.getId());
     }
 
     @Test(expected = CannotDeleteException.class)
