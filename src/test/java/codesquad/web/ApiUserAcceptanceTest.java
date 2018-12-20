@@ -25,10 +25,10 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void show_다른_사람() throws Exception {
-        User newUser = newUser("testuser2");
-        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);
-        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        String location = response.getHeaders().getLocation().getPath();
+        User newUser = newUser("testuser2");    //사용자1 생성
+        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);    //Void.class 뭐하는 애냐?
+        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);  //response의 상태코드
+        String location = response.getHeaders().getLocation().getPath();    //얘 뭐임??
 
         response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -37,9 +37,10 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update() throws Exception {
         User newUser = newUser("testuser3");
-        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);
-        String location = response.getHeaders().getLocation().getPath();
+        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);//response에 controller의 결과값을 받아
+        String location = response.getHeaders().getLocation().getPath();    //api/users/id를 가지는 location
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        log.debug("newUser UserId---------------------- : {}", response);
         User original = basicAuthTemplate(newUser).getForObject(location, User.class);
 
         User updateUser = new User
