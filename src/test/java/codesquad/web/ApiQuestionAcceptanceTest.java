@@ -14,7 +14,7 @@ import static codesquad.domain.UserTest.newUser;
 
 
 public class ApiQuestionAcceptanceTest extends AcceptanceTest {
-    private static final Logger log = LoggerFactory.getLogger(UserAcceptanceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(ApiQuestionAcceptanceTest.class);
 
     @Autowired
     private QuestionRepository questionRepository;
