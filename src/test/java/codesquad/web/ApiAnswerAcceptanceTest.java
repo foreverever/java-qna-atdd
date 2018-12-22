@@ -84,10 +84,4 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
                 basicAuthTemplate(other).exchange(location, HttpMethod.DELETE, createHttpEntity(answer), Answer.class);
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
-
-    private HttpEntity createHttpEntity(Object body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity(body, headers);
-    }
 }
