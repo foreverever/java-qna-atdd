@@ -29,6 +29,13 @@ public class AnswerTest extends BaseTest {
     }
 
     @Test
+    public void toQuestion() {
+        Answer answer = new Answer(owner,"contents");
+        answer.toQuestion(question);
+        softly.assertThat(answer.getQuestion()).isEqualTo(question);
+    }
+
+    @Test
     public void delete() {
         answer.delete(owner);
         softly.assertThat(answer.isDeleted()).isTrue();
