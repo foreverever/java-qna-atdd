@@ -49,10 +49,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void 답변삭제_로그인X() {
         Answer answer = new Answer(1L, owner, originalQuestion, "contents");
-        ResponseEntity response = basicAuthTemplate().postForEntity("/api/questions/1/answers", answer, Void.class);
-        String location = response.getHeaders().getLocation().getPath();
-        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
+        String location = createResource("/api/questions/1/answers", answer);
         ResponseEntity<Answer> responseEntity =
                 template().exchange(location, HttpMethod.DELETE, createHttpEntity(answer), Answer.class);
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -61,11 +58,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void 답변삭제_본인() {
         Answer answer = new Answer(1L, owner, originalQuestion, "contents");
-        ResponseEntity response = basicAuthTemplate().postForEntity("/api/questions/1/answers", answer, Void.class);
-        String location = response.getHeaders().getLocation().getPath();
-        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        log.debug("response-------------------- : {}", response);
-
+        String location = createResource("/api/questions/1/answers", answer);
         ResponseEntity<Answer> responseEntity =
                 basicAuthTemplate().exchange(location, HttpMethod.DELETE, createHttpEntity(answer), Answer.class);
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -76,10 +69,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     public void 답변삭제_다른유저() {
         User other = newUser("testUser");
         Answer answer = new Answer(owner, "contents");
-        ResponseEntity response = basicAuthTemplate().postForEntity("/api/questions/1/answers", answer, Void.class);
-        String location = response.getHeaders().getLocation().getPath();
-        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
+        String location = createResource("/api/questions/1/answers", answer);
         ResponseEntity<Answer> responseEntity =
                 basicAuthTemplate(other).exchange(location, HttpMethod.DELETE, createHttpEntity(answer), Answer.class);
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);

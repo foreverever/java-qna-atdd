@@ -41,13 +41,7 @@ public abstract class AcceptanceTest extends BaseTest {
         return userRepository.findByUserId(userId).get();
     }
 
-//    protected String createQuestionResource(String path, Object bodyPayload) {
-//        ResponseEntity<Void> response = template().postForEntity(path, bodyPayload, Void.class);
-//        softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-//        return response.getHeaders().getLocation().getPath();
-//    }
-
-    protected String createQuestionResource(String path, Object bodyPayload) {
+    protected String createResource(String path, Object bodyPayload) {
         ResponseEntity<Void> response = basicAuthTemplate().postForEntity(path, bodyPayload, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         return response.getHeaders().getLocation().getPath();

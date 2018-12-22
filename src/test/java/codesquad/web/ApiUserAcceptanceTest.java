@@ -15,29 +15,27 @@ import static codesquad.domain.UserTest.newUser;
 
 public class ApiUserAcceptanceTest extends AcceptanceTest {
     private static final Logger log = LoggerFactory.getLogger(ApiUserAcceptanceTest.class);
-    private User newUser;
-    private String location;
-
-    @Before
-    public void setUp() throws Exception {
-        newUser = newUser("testUser");
-        location = createUserResource("/api/users", newUser);
-    }
 
     @Test
     public void create() throws Exception {
+        User newUser = newUser("testUser1");
+        String location = createUserResource("/api/users", newUser);
         User dbUser = basicAuthTemplate(findByUserId(newUser.getUserId())).getForObject(location, User.class);
         softly.assertThat(dbUser).isNotNull();
     }
 
     @Test
     public void show_다른_사람() throws Exception {
+        User newUser = newUser("testUser2");
+        String location = createUserResource("/api/users", newUser);
         ResponseEntity<Void> response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
     public void update() throws Exception {
+        User newUser = newUser("testUser3");
+        String location = createUserResource("/api/users", newUser);
         User original = getResource(location, User.class, newUser);
         User updateUser = new User
                 (original.getId(), original.getUserId(), original.getPassword(),
@@ -52,6 +50,8 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update_no_login() throws Exception {
+        User newUser = newUser("testUser4");
+        String location = createUserResource("/api/users", newUser);
         User original = getResource(location, User.class, newUser);
 
         User updateUser = new User
@@ -67,6 +67,8 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update_다른_사람() throws Exception {
+        User newUser = newUser("testUser5");
+        String location = createUserResource("/api/users", newUser);
         User updateUser = new User(newUser.getUserId(), "password", "name2", "javajigi@slipp.net2");
 
         ResponseEntity<Void> responseEntity =

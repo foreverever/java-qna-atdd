@@ -25,7 +25,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Before
     public void setUp() throws Exception {
         originalQuestion = new Question("title", "contents");
-        location = createQuestionResource("/api/questions", originalQuestion);
+        location = createResource("/api/questions", originalQuestion);
     }
 
     @Test
