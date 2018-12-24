@@ -45,6 +45,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
         Question updatedQuestion = new Question("updatedTitle", "updatedContents");
         ResponseEntity<Question> responseEntity =
                 basicAuthTemplate().exchange(location, HttpMethod.PUT, createHttpEntity(updatedQuestion), Question.class);
+        log.debug("response body : {}", responseEntity.getBody());
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
@@ -68,7 +69,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Test
     public void 질문삭제_로그인O() {
         ResponseEntity<Question> responseEntity =
-                basicAuthTemplate().exchange(location, HttpMethod.DELETE, createHttpEntity(originalQuestion), Question.class);
+                basicAuthTemplate().exchange(location, HttpMethod.DELETE, HttpEntity.EMPTY, Question.class);
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         softly.assertThat(responseEntity.getBody().isDeleted()).isTrue();
     }
