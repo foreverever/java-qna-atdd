@@ -14,7 +14,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class AnswerTest extends BaseTest {
     private static final Logger logger = getLogger(AnswerTest.class);
 
-    private static Answer answer = new Answer(0L, owner, originalQuestion, "contents");
+    public static Answer answer = new Answer(1L, owner, originalQuestion, "contents");
 
     @Before
     public void setUp() throws Exception {

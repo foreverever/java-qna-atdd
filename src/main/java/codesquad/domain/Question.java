@@ -4,17 +4,23 @@ import codesquad.CannotDeleteException;
 import codesquad.UnAuthenticationException;
 import codesquad.security.LoginUser;
 import org.hibernate.annotations.Where;
+import org.slf4j.Logger;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
+    private static final Logger log = getLogger(Question.class);
+
     @Size(min = 3, max = 100)
     @Column(length = 100, nullable = false)
     private String title;
@@ -25,6 +31,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
+//    @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
     private User writer;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
@@ -64,6 +71,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return writer;
     }
 
+    public int getAnswerSize(){
+        return answers.size();
+    }
+
     public void writeBy(User loginUser) {
         this.writer = loginUser;
     }
@@ -71,6 +82,8 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     public void addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
+        log.debug("answersSize in addAnswer method : {}",answers.size());
+        log.debug("answer : {}",answer);
     }
 
     public boolean isOwner(User loginUser) {
@@ -102,6 +115,29 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.contents = updatedQuestion.contents;
     }
 
+    public List<DeleteHistory> delete(User loginUser) throws CannotDeleteException {
+        List<DeleteHistory> histories = new ArrayList<>();
+        log.debug("answersSize in delete method : {}",answers.size());
+        if (!this.isOwner(loginUser)) throw new CannotDeleteException("질문 작성자와 다름");
+        if (isImpossibleDeleteAnswers(loginUser)) throw new CannotDeleteException("다른 사용자의 답변 존재");
+        for (Answer answer : answers) {
+            answer.delete(loginUser);
+            histories.add(new DeleteHistory(ContentType.ANSWER, answer.getId(), answer.getWriter(), LocalDateTime.now()));
+        }
+        this.deleted = true;
+        histories.add(new DeleteHistory(ContentType.QUESTION, this.getId(), this.getWriter(), LocalDateTime.now()));
+        return histories;
+    }
+
+    private boolean isImpossibleDeleteAnswers(User loginUser) {
+        for (Answer answer : answers) {
+            log.debug("왜안되냐고 빡치게");
+            if (!answer.isOwner(loginUser)) return true;
+        }
+        log.debug("???????????????????????????");
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -116,8 +152,4 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return Objects.hash(super.hashCode(), writer);
     }
 
-    public void delete(User loginUser) throws CannotDeleteException {
-        if (!this.isOwner(loginUser)) throw new CannotDeleteException("삭제 안됨!!");
-        this.deleted = true;
-    }
 }
