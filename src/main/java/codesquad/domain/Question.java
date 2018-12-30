@@ -31,7 +31,6 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
-//    @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
     private User writer;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
@@ -104,11 +103,6 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
     }
 
-//    public void update(Question updatedQuestion, @LoginUser User loginUser) {
-//        this.title = updatedQuestion.title;
-//        this.contents = updatedQuestion.contents;
-//    }
-
     public void update(Question updatedQuestion, User loginUser) throws UnAuthenticationException {
         if (!this.writer.equals(loginUser)) throw new UnAuthenticationException();
         this.title = updatedQuestion.title;
@@ -117,7 +111,6 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     public List<DeleteHistory> delete(User loginUser) throws CannotDeleteException {
         List<DeleteHistory> histories = new ArrayList<>();
-        log.debug("answersSize in delete method : {}",answers.size());
         if (!this.isOwner(loginUser)) throw new CannotDeleteException("질문 작성자와 다름");
         if (isImpossibleDeleteAnswers(loginUser)) throw new CannotDeleteException("다른 사용자의 답변 존재");
         for (Answer answer : answers) {
@@ -131,10 +124,8 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     private boolean isImpossibleDeleteAnswers(User loginUser) {
         for (Answer answer : answers) {
-            log.debug("왜안되냐고 빡치게");
             if (!answer.isOwner(loginUser)) return true;
         }
-        log.debug("???????????????????????????");
         return false;
     }
 
